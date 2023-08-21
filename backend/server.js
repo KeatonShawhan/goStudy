@@ -23,7 +23,7 @@ app.get('/test', (req, res) => {
   res.send('Hello, World!');  // A simple test endpoint
 });
 
-const db = client.db('your_database_name');
+const db = client.db('goStudy');
 
 app.get('/getData', (req, res) => {
   const collection = db.collection('your_collection_name');
