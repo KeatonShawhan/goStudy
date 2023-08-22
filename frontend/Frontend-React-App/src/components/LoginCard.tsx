@@ -2,7 +2,7 @@ import { Box, FormControl, FormLabel, Input, Text, Link, Button } from '@chakra-
 
 const LoginCard = () => {
   return (
-    <Box width='30rem' height='25rem' background='gray.700' borderRadius='5px' padding='2rem'>
+    <Box width='100%' overflow='hidden' background='gray.700' borderRadius='5px' padding='2rem'>
     <Text color='#cfd9e8' fontWeight='bold' fontSize='2xl'>WELCOME BACK!</Text>
     <Text fontSize='2xs' marginBottom='1rem'>Don't have an account? <Link color='#6896d9'>Sign up</Link></Text>
     <FormControl marginBottom='1rem'>
