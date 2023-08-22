@@ -24,11 +24,3 @@ app.get('/test', (req, res) => {
 });
 
 const db = client.db('goStudy');
-
-app.get('/getData', (req, res) => {
-  const collection = db.collection('your_collection_name');
-  collection.find({}).toArray((err, data) => {
-      if (err) throw err;
-      res.json(data);
-  });
-});
