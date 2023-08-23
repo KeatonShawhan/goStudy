@@ -1,4 +1,6 @@
 const mysql = require('mysql');
+require('dotenv').config({ path: '../.env' });
+
 
 console.log(`MYSQL_HOST: ${process.env.MYSQL_HOST}`);
 console.log(`MYSQL_USER: ${process.env.MYSQL_USER}`);
