@@ -1,0 +1,31 @@
+const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+  host: process.env.MYSQL_HOST,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASS,
+  database: process.env.MYSQL_DB
+});
+
+connection.connect(err => {
+  if (err) {
+    console.error('An error occurred while connecting to the DB');
+    throw err;
+  }
+  console.log('Connected successfully to the DB');
+});
+
+// Test query to create a table
+connection.query(`
+CREATE TABLE test_table (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    test_value VARCHAR(255) NOT NULL
+)`, (err, results) => {
+  if (err) {
+    console.error('An error occurred while creating the table');
+    throw err;
+  }
+  console.log('Table test_table created successfully');
+});
+
+connection.end();

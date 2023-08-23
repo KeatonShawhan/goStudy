@@ -1,10 +1,12 @@
 const express = require('express');
 const cors = require('cors');
+const mysql = require('mysql2/promise');  // Import the promise version for async/await support
 require('dotenv').config();
 
-const MONGO_USER = process.env.MONGO_USER;
-const MONGO_PASS = process.env.MONGO_PASS;
-
+const MYSQL_USER = process.env.MYSQL_USER;
+const MYSQL_PASS = process.env.MYSQL_PASS;
+const MYSQL_HOST = '127.0.0.1';  // Assuming MySQL runs locally, change if otherwise
+const MYSQL_DB = 'goStudy';
 
 const app = express();
 app.use(cors());
@@ -14,18 +16,24 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-const MongoClient = require('mongodb').MongoClient;
-
-const MONGO_URL = `mongodb://${MONGO_USER}:${MONGO_PASS}@18.116.57.165:27017/goStudy`;
-const client = new MongoClient(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
-
-client.connect(err => {
-    if (err) throw err;
-    console.log("Connected to MongoDB");
+// Create a MySQL connection pool
+const pool = mysql.createPool({
+    host: MYSQL_HOST,
+    user: MYSQL_USER,
+    password: MYSQL_PASS,
+    database: MYSQL_DB,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-app.get('/test', (req, res) => {
-  res.send('Hello, World!');  // A simple test endpoint
+// Example of how to use the connection to query the database
+app.get('/test', async (req, res) => {
+    try {
+        const [rows, fields] = await pool.execute('SELECT * FROM names');  // Replace `some_table` with a table name in your database
+        res.json(rows);
+    } catch (error) {
+        console.error("Error querying MySQL: ", error);
+        res.status(500).send("Internal Server Error");
+    }
 });
-
-const db = client.db('goStudy');
