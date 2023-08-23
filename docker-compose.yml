@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001" # Frontend port, if needed. Adjust as per your application configuration.
+    depends_on:
+      - db
+    environment:
+      - NODE_ENV=development
+      - DATABASE_HOST = db
+      # Add other environment variables or use env_file if needed
+    env_file:
+      - .env
+    networks:
+      - mynetwork
+
+  db:
+    image: mysql  # Using official MySQL image
+    ports:
+      - "3306:3306"
+    env_file:
+      - .env
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  dbdata:
