@@ -1,5 +1,10 @@
 const mysql = require('mysql');
 
+console.log(`MYSQL_HOST: ${process.env.MYSQL_HOST}`);
+console.log(`MYSQL_USER: ${process.env.MYSQL_USER}`);
+console.log(`MYSQL_PASS: ${process.env.MYSQL_PASS}`);
+console.log(`MYSQL_DB: ${process.env.MYSQL_DB}`);
+
 const connection = mysql.createConnection({
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
