@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');  // Import the promise version for async/await support
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' });
 
 const MYSQL_USER = process.env.MYSQL_USER;
 const MYSQL_PASS = process.env.MYSQL_PASS;
