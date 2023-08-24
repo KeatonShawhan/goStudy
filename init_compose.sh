@@ -12,7 +12,7 @@ docker-compose up -d
 
 sleep 10
 
-results=$(sudo docker exec -i gostudy-db-1 mysql -u   -p $DATABASE_PASSWORD < verify.sql)
+results=$(sudo docker exec -i gostudy-db-1 mysql -u root -p $DATABASE_PASSWORD < verify.sql)
 
 # Parse the results
 # This is a basic check to see if any of the results are empty, indicating a missing item
