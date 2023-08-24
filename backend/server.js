@@ -5,8 +5,8 @@ require('dotenv').config({ path: '../.env' });
 
 const MYSQL_USER = process.env.MYSQL_USER;
 const MYSQL_PASS = process.env.MYSQL_PASS;
-const MYSQL_HOST = '127.0.0.1';  // Assuming MySQL runs locally, change if otherwise
-const MYSQL_DB = 'goStudy';
+const MYSQL_HOST = process.env.MYSQL_HOST;  // Assuming MySQL runs locally, change if otherwise
+const MYSQL_DB = process.env.MYSQL_DB;
 
 const app = express();
 app.use(cors());
@@ -28,9 +28,13 @@ const pool = mysql.createPool({
 });
 
 // Example of how to use the connection to query the database
+app.get('/', (req, res) => {
+    res.send('GoStudy Server is running!');
+});
+
 app.get('/test', async (req, res) => {
     try {
-        const [rows, fields] = await pool.execute('SELECT * FROM test_table');  // Replace `some_table` with a table name in your database
+        const [rows, fields] = await pool.execute(`DESCRIBE Users;`);  // Replace `some_table` with a table name in your database
         res.json(rows);
     } catch (error) {
         console.error("Error querying MySQL: ", error);
