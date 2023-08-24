@@ -1,4 +1,3 @@
-
 -- Create a user with placeholders
 CREATE USER IF NOT EXISTS '{{USERNAME}}'@'%' IDENTIFIED BY '{{PASSWORD}}';
 
@@ -54,11 +53,55 @@ CREATE TABLE IF NOT EXISTS Messages (
     FOREIGN KEY (group_id) REFERENCES StudyGroups(group_id) ON DELETE CASCADE
 );
 
--- Indexing for optimal query performance (only if tables are created)
-CREATE INDEX IF NOT EXISTS idx_users_username_email ON Users(username, email);
-CREATE INDEX IF NOT EXISTS idx_studygroups_createdby ON StudyGroups(created_by);
-CREATE INDEX IF NOT EXISTS idx_groupmembers_user_group ON GroupMembers(user_id, group_id);
-CREATE INDEX IF NOT EXISTS idx_messages_sentby_group_timestamp ON Messages(sent_by, group_id, timestamp);
+-- Check if the index exists before trying to create it for each table
+-- Users table indexes
+SET @dbname = DATABASE();
+SET @tablename = "Users";
+SET @indexname = "idx_users_username_email";
+SET @preparedStatement = (SELECT IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE `table_schema` = @dbname AND `table_name` = @tablename AND `index_name` = @indexname) > 0,
+  "SELECT 1", 
+  "CREATE INDEX idx_users_username_email ON Users(username, email)"
+));
+PREPARE stmt FROM @preparedStatement;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- StudyGroups table indexes
+SET @tablename = "StudyGroups";
+SET @indexname = "idx_studygroups_createdby";
+SET @preparedStatement = (SELECT IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE `table_schema` = @dbname AND `table_name` = @tablename AND `index_name` = @indexname) > 0,
+  "SELECT 1", 
+  "CREATE INDEX idx_studygroups_createdby ON StudyGroups(created_by)"
+));
+PREPARE stmt FROM @preparedStatement;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- GroupMembers table indexes
+SET @tablename = "GroupMembers";
+SET @indexname = "idx_groupmembers_user_group";
+SET @preparedStatement = (SELECT IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE `table_schema` = @dbname AND `table_name` = @tablename AND `index_name` = @indexname) > 0,
+  "SELECT 1", 
+  "CREATE INDEX idx_groupmembers_user_group ON GroupMembers(user_id, group_id)"
+));
+PREPARE stmt FROM @preparedStatement;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Messages table indexes
+SET @tablename = "Messages";
+SET @indexname = "idx_messages_sentby_group_timestamp";
+SET @preparedStatement = (SELECT IF(
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE `table_schema` = @dbname AND `table_name` = @tablename AND `index_name` = @indexname) > 0,
+  "SELECT 1", 
+  "CREATE INDEX idx_messages_sentby_group_timestamp ON Messages(sent_by, group_id, timestamp)"
+));
+PREPARE stmt FROM @preparedStatement;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- Archival messages database init
 CREATE DATABASE IF NOT EXISTS goStudyArchived;
@@ -70,7 +113,6 @@ CREATE TABLE IF NOT EXISTS ArchivedMessages (
     sent_by INT NOT NULL,
     group_id INT NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    -- Note: We're skipping FOREIGN KEYS here for simplicity, but consider if you need referential integrity across databases.
 );
 
 SET GLOBAL event_scheduler = ON;
@@ -81,13 +123,13 @@ ON SCHEDULE EVERY 1 MONTH
 STARTS NOW()
 DO
 BEGIN
-    -- Insert the old messages into the ArchivedMessages table in the goStudyArchived database
+    -- Insert the old messages into the ArchivedMessages table
     INSERT INTO goStudyArchived.ArchivedMessages (content, sent_by, group_id, timestamp)
     SELECT content, sent_by, group_id, timestamp
     FROM goStudy.Messages
     WHERE timestamp < DATE_SUB(NOW(), INTERVAL 3 MONTH);
 
-    -- Delete the old messages from the Messages table in the goStudy database
+    -- Delete the old messages from the Messages table
     DELETE FROM goStudy.Messages WHERE timestamp < DATE_SUB(NOW(), INTERVAL 3 MONTH);
 END //
 DELIMITER ;
@@ -103,5 +145,5 @@ BEGIN
 END //
 DELIMITER ;
 
--- Flush finally.
+-- Flush privileges.
 FLUSH PRIVILEGES;
