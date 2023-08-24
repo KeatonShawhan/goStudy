@@ -10,7 +10,7 @@ sed -i "s/{{PASSWORD}}/$DATABASE_PASSWORD/g" init.sql
 # Start the MySQL container (or any other commands you need)
 docker-compose up -d
 
-sleep 40
+sleep 15
 
 results=$(sudo docker exec -i gostudy-db-1 mysql -u root -p $DATABASE_PASSWORD < verify.sql)
 
