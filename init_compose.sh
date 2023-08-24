@@ -2,6 +2,7 @@
 
 # Load environment variables from .env file
 export $(grep -v '^#' .env | xargs)
+echo $DATABASE_PASSWORD
 
 # Replace placeholders in init.sql with actual values
 sed -i "s/{{USERNAME}}/$DATABASE_USER/g" init.sql
