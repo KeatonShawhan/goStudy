@@ -7,9 +7,9 @@ const LoginCard = () => {
     <Text fontSize='2xs' marginBottom='1rem'>Don't have an account? <Link color='#6896d9'>Sign up</Link></Text>
     <FormControl marginBottom='1rem'>
     <FormLabel color='#cfd9e8'>Email</FormLabel>
-    <Input type='email' marginBottom='1rem' border='1px solid #6896d9'/>
+    <Input type='email' marginBottom='1rem' border='1px solid #6896d9' />
     <FormLabel color='#cfd9e8'>Password</FormLabel>
-    <Input type='password' border='1px solid #6896d9' marginBottom='1rem'/>
+    <Input type='password' border='1px solid #6896d9' marginBottom='1rem' />
     <Link marginBottom='1.5rem' fontSize='2xs' display='flex' justifyContent='right' color='#6896d9'>Forgot Password?</Link>
     <Button borderRadius='10px' width='100%' background='#6896d9'>Sign In</Button>
     </FormControl>

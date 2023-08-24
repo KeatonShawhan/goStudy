@@ -6,7 +6,7 @@ const LoginPage = () => {
   return (
     <Grid templateColumns='repeat(2, 50%)'>
         <GridItem margin='3rem'><LoginCard/></GridItem>
-        <GridItem width='100%' overflow='hidden'><LoginLogo/></GridItem> 
+        <GridItem width='100%' overflow='hidden' display='flex' justifyContent='center' paddingTop='4rem'><LoginLogo/></GridItem> 
     </Grid>
     
   )

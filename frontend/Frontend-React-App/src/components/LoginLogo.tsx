@@ -1,8 +1,10 @@
-import { Text } from "@chakra-ui/react"
+import { Box, Text } from "@chakra-ui/react"
 
 const LoginLogo = () => {
   return (
-    <Text>GoStudy</Text>
+    <Box>
+      <Text fontSize='3xl' fontWeight='extrabold'>GoStudy</Text>
+    </Box>
   )
 }
 
