@@ -4,7 +4,7 @@ const mysql = require('mysql2/promise');  // Import the promise version for asyn
 require('dotenv').config({ path: '../.env' });
 
 const MYSQL_USER = process.env.MYSQL_USER;
-const MYSQL_PASS = process.env.MYSQL_PASS;
+const MYSQL_PASS = process.env.MYSQL_PASSWORD;
 const MYSQL_HOST = process.env.MYSQL_HOST;  // Assuming MySQL runs locally, change if otherwise
 const MYSQL_DB = process.env.MYSQL_DB;
 
