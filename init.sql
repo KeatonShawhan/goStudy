@@ -1,9 +1,9 @@
 
 -- Create a user with placeholders
-CREATE USER IF NOT EXISTS 'keatonS'@'%' IDENTIFIED BY '200305082';
+CREATE USER IF NOT EXISTS '{{USERNAME}}'@'%' IDENTIFIED BY '{{PASSWORD}}';
 
 -- Grant all permissions on your schema to the user
-GRANT ALL PRIVILEGES ON *.* TO 'keatonS'@'%';
+GRANT ALL PRIVILEGES ON *.* TO '{{USERNAME}}'@'%';
 
 -- Database Initialization Script for Study Group Platform
 
