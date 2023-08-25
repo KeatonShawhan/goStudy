@@ -11,7 +11,7 @@ services:
       - db
     environment:
       - NODE_ENV=development
-      - DATABASE_HOST = db
+      - DATABASE_HOST=db
       # Add other environment variables or use env_file if needed
     env_file:
       - .env
