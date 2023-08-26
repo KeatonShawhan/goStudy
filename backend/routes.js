@@ -52,7 +52,7 @@ app.post('/register', (req, res) => {
 
   // Validate the data here as necessary
 
-  pool.query('SELECT * FROM Users WHERE username = ? OR email = ?', [username, email], (err, results) => {
+  db.query('SELECT * FROM Users WHERE username = ? OR email = ?', [username, email], (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -68,7 +68,7 @@ app.post('/register', (req, res) => {
       }
 
       // Insert the new user
-      pool.query(
+      db.query(
         'INSERT INTO Users (username, password, email, major) VALUES (?, ?, ?, ?)',
         [username, hashedPassword, email, major],
         (err, results) => {
