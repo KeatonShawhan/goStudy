@@ -10,6 +10,9 @@ const MYSQL_PASS = process.env.MYSQL_PASSWORD;
 const MYSQL_HOST = process.env.MYSQL_HOST;  // Assuming MySQL runs locally, change if otherwise
 const MYSQL_DB = process.env.MYSQL_DB;
 
+const app = express();
+app.use(express.json()); // For parsing application/json
+
 // Middleware to verify token
 const verifyToken = (req, res, next) => {
   const bearerHeader = req.headers['authorization'];
@@ -28,15 +31,15 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-const app = express();
-app.use(express.json()); // For parsing application/json
-
-// MySQL connection
-const db = mysql.createConnection({
+// Create a MySQL connection pool
+const db = mysql.createPool({
   host: MYSQL_HOST,
   user: MYSQL_USER,
   password: MYSQL_PASS,
   database: MYSQL_DB,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
 db.connect((err) => {
