@@ -65,6 +65,7 @@ app.post('/register', (req, res) => {
     // Hash the password
     bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
       if (err) {
+        console.error("Bcrypt hashing error:", err);
         return res.status(500).json({ error: 'Failed to hash password' });
       }
 
