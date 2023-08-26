@@ -49,7 +49,6 @@ const db = mysql.createPool({
 });
 
 app.post('/register', (req, res) => {
-  console.log(req.body);
   const { username, password, email, major } = req.body;
 
   // Validate the data here as necessary
