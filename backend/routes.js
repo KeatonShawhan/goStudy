@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
+const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 
 const secret = process.env.JWT_SECRET;
@@ -10,8 +11,12 @@ const MYSQL_PASS = process.env.MYSQL_PASSWORD;
 const MYSQL_HOST = process.env.MYSQL_HOST;  // Assuming MySQL runs locally, change if otherwise
 const MYSQL_DB = process.env.MYSQL_DB;
 
+const saltRounds = 10;
+const PORT = 3001;
 const app = express();
 app.use(express.json()); // For parsing application/json
+
+app.use(bodyParser.json());
 
 // Middleware to verify token
 const verifyToken = (req, res, next) => {
@@ -41,6 +46,42 @@ const db = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0
 });
+
+app.post('/register', (req, res) => {
+  const { username, password, email, major } = req.body;
+
+  // Validate the data here as necessary
+
+  pool.query('SELECT * FROM Users WHERE username = ? OR email = ?', [username, email], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (results.length > 0) {
+      return res.status(400).json({ error: 'Username or email already exists.' });
+    }
+
+    // Hash the password
+    bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to hash password' });
+      }
+
+      // Insert the new user
+      pool.query(
+        'INSERT INTO Users (username, password, email, major) VALUES (?, ?, ?, ?)',
+        [username, hashedPassword, email, major],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          return res.status(201).json({ message: 'User created', user_id: results.insertId });
+        }
+      );
+    });
+  });
+});
+
 
 // Login endpoint
 app.post('/login', (req, res) => {
@@ -86,7 +127,6 @@ app.post('/login', (req, res) => {
   });
 });
 
-const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
