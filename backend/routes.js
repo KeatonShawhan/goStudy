@@ -42,13 +42,6 @@ const db = mysql.createPool({
   queueLimit: 0
 });
 
-db.connect((err) => {
-  if (err) {
-    throw err;
-  }
-  console.log('Connected to database');
-});
-
 // Login endpoint
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
