@@ -3,6 +3,8 @@ const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
+const mysql = require('mysql2/promise');  // Import the promise version for async/await support
+require('dotenv').config({ path: '../.env' });
 
 const secret = process.env.JWT_SECRET;
 
