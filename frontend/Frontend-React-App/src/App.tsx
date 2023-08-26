@@ -1,5 +1,4 @@
 import { Box } from "@chakra-ui/react";
-import CreateUserCard from "./components/CreateUserCard";
 import CreateUserPage from "./pages/CreateUserPage";
 
 function App() {
