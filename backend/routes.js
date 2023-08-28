@@ -27,10 +27,6 @@ const verifyToken = (req, res, next) => {
     const token = bearerHeader.split(' ')[1];
     jwt.verify(token, secret, (err, decoded) => {
       if (err) {
-        console.log("Token to verify:", token);
-        console.log("Secret used for verification:", secret);
-        console.log("Decoded payload:", decoded);
-        console.log("JWT verify error:", err); // debug line
         return res.status(403).json({ message: 'Invalid token' });
       }
       console.log("Decoded JWT:", decoded); // debug line
