@@ -229,6 +229,38 @@ app.post('/join-study-group/:group_id', verifyToken, (req, res) => {
   );
 });
 
+// Listing all usernames in a study group
+app.get('/list-group-members/:group_id', verifyToken, (req, res) => {
+  const groupId = req.params.group_id;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+
+  // First, let's check if the user is a member of the group
+  db.query(
+    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+    [userId, groupId],
+    (err, results) => {
+      if (err || results.length === 0) {
+        return res.status(403).json({ error: 'You are not a member of this group' });
+      }
+
+      // If the user is a member, proceed to list all members
+      db.query(
+        'SELECT Users.username FROM Users ' +
+        'JOIN GroupMembers ON Users.user_id = GroupMembers.user_id ' +
+        'WHERE GroupMembers.group_id = ?',
+        [groupId],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          const usernames = results.map(row => row.username);
+          return res.status(200).json({ usernames });
+        }
+      );
+    }
+  );
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
