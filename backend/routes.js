@@ -29,6 +29,7 @@ const verifyToken = (req, res, next) => {
       if (err) {
         console.log("Token to verify:", token);
         console.log("Secret used for verification:", secret);
+        console.log("Decoded payload:", decoded);
         console.log("JWT verify error:", err); // debug line
         return res.status(403).json({ message: 'Invalid token' });
       }
