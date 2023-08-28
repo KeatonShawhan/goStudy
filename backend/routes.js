@@ -129,6 +129,73 @@ app.post('/login', (req, res) => {
   });
 });
 
+// Creating a study group endpoint
+app.post('/create-study-group', verifyToken, (req, res) => {
+  const { group_name, subject } = req.body;
+  const created_by = req.userId;  // Obtained from verifyToken middleware
+
+  if (!group_name || !subject) {
+    return res.status(400).json({ error: 'Group name and subject are required' });
+  }
+
+  db.query(
+    'INSERT INTO StudyGroups (group_name, subject, created_by) VALUES (?, ?, ?)',
+    [group_name, subject, created_by],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      const groupId = results.insertId;
+
+      // Automatically add the creator as an admin in the GroupMembers table
+      db.query(
+        'INSERT INTO GroupMembers (user_id, group_id, role) VALUES (?, ?, "admin")',
+        [created_by, groupId],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+
+          return res.status(201).json({ message: 'Study group created', group_id: groupId });
+        }
+      );
+    }
+  );
+});
+
+
+// Deleting a study group endpoint
+app.delete('/delete-study-group/:group_id', verifyToken, (req, res) => {
+  const groupId = req.params.group_id;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+
+  // First check if the user is an admin of the group
+  db.query(
+    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ? AND role = "admin"',
+    [userId, groupId],
+    (err, results) => {
+      if (err || results.length === 0) {
+        return res.status(403).json({ error: 'You do not have permission to delete this group' });
+      }
+
+      // Proceed to delete
+      db.query(
+        'DELETE FROM StudyGroups WHERE group_id = ?',
+        [groupId],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          return res.status(200).json({ message: 'Study group deleted' });
+        }
+      );
+    }
+  );
+});
+
+
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
