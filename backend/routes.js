@@ -261,6 +261,45 @@ app.get('/list-group-members/:group_id', verifyToken, (req, res) => {
   );
 });
 
+// Leaving a study group endpoint
+app.delete('/leave-study-group/:group_id', verifyToken, (req, res) => {
+  const groupId = req.params.group_id;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+
+  // First check if the user is actually a member of the group
+  db.query(
+    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+    [userId, groupId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      
+      if (results.length === 0) {
+        return res.status(400).json({ error: 'You are not a member of this group' });
+      }
+
+      // Check if the user is an admin
+      if (results[0].role === 'admin') {
+        return res.status(403).json({ error: 'Admins cannot leave the group without transferring ownership or deleting the group' });
+      }
+
+      // Proceed to remove the user from the group
+      db.query(
+        'DELETE FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+        [userId, groupId],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+
+          return res.status(200).json({ message: 'Successfully left the study group', group_id: groupId });
+        }
+      );
+    }
+  );
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
