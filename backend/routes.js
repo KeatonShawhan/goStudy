@@ -195,6 +195,39 @@ app.delete('/delete-study-group/:group_id', verifyToken, (req, res) => {
   );
 });
 
+// Joining a study group endpoint
+app.post('/join-study-group/:group_id', verifyToken, (req, res) => {
+  const groupId = req.params.group_id;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+
+  // First check if the user is already a member of the group
+  db.query(
+    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+    [userId, groupId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      
+      if (results.length > 0) {
+        return res.status(400).json({ error: 'You are already a member of this group' });
+      }
+
+      // Proceed to add the user to the group with a 'member' role
+      db.query(
+        'INSERT INTO GroupMembers (user_id, group_id, role) VALUES (?, ?, "member")',
+        [userId, groupId],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+
+          return res.status(201).json({ message: 'Successfully joined the study group', group_id: groupId });
+        }
+      );
+    }
+  );
+});
 
 
 app.listen(PORT, () => {
