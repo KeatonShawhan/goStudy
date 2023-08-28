@@ -300,6 +300,56 @@ app.delete('/leave-study-group/:group_id', verifyToken, (req, res) => {
   );
 });
 
+// Transferring admin role to another user
+app.put('/transfer-admin/:group_id', verifyToken, (req, res) => {
+  const groupId = req.params.group_id;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+  const newAdminId = req.body.new_admin_id;
+
+  // First, check if the user making the request is an admin of the group
+  db.query(
+    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ? AND role = "admin"',
+    [userId, groupId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (results.length === 0) {
+        return res.status(403).json({ error: 'You are not an admin of this group' });
+      }
+
+      // Check if the new admin is already a member of the group
+      db.query(
+        'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+        [newAdminId, groupId],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+
+          if (results.length === 0) {
+            return res.status(400).json({ error: 'The user you are trying to promote is not a member of this group' });
+          }
+
+          // Proceed to update the role of the new admin
+          db.query(
+            'UPDATE GroupMembers SET role = "admin" WHERE user_id = ? AND group_id = ?',
+            [newAdminId, groupId],
+            (err, results) => {
+              if (err) {
+                return res.status(500).json({ error: err.message });
+              }
+
+              return res.status(200).json({ message: 'Admin role transferred successfully', group_id: groupId });
+            }
+          );
+        }
+      );
+    }
+  );
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
