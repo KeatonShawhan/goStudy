@@ -341,7 +341,18 @@ app.put('/transfer-admin/:group_id', verifyToken, (req, res) => {
                 return res.status(500).json({ error: err.message });
               }
 
-              return res.status(200).json({ message: 'Admin role transferred successfully', group_id: groupId });
+              // Update the role of the old admin to 'member'
+              db.query(
+                'UPDATE GroupMembers SET role = "member" WHERE user_id = ? AND group_id = ?',
+                [userId, groupId],
+                (err, results) => {
+                  if (err) {
+                    return res.status(500).json({ error: err.message });
+                  }
+
+                  return res.status(200).json({ message: 'Admin role transferred successfully', group_id: groupId });
+                }
+              );
             }
           );
         }
@@ -349,6 +360,7 @@ app.put('/transfer-admin/:group_id', verifyToken, (req, res) => {
     }
   );
 });
+
 
 
 app.listen(PORT, () => {
