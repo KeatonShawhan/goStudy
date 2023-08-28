@@ -116,7 +116,7 @@ app.post('/login', (req, res) => {
     const user = results[0];
 
     // Generate JWT Token
-    const token = jwt.sign({ user_id: user.user_id }, 'yourSecretKey', {
+    const token = jwt.sign({ user_id: user.user_id }, secret, {
       expiresIn: '8h',
     });
 
