@@ -199,10 +199,9 @@ app.delete('/delete-study-group/:group_id', verifyToken, (req, res) => {
 app.post('/join-study-group/:group_id', verifyToken, (req, res) => {
   const groupId = req.params.group_id;
   const userId = req.userId;  // Obtained from verifyToken middleware
-
-  // First check if the user is already a member of the group
+  // Check if the user is banned
   db.query(
-    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+    'SELECT * FROM BannedMembers WHERE user_id = ? AND group_id = ?',
     [userId, groupId],
     (err, results) => {
       if (err) {
@@ -210,19 +209,32 @@ app.post('/join-study-group/:group_id', verifyToken, (req, res) => {
       }
       
       if (results.length > 0) {
-        return res.status(400).json({ error: 'You are already a member of this group' });
+        return res.status(403).json({ error: 'You are banned from this group' });
       }
-
-      // Proceed to add the user to the group with a 'member' role
+      // First check if the user is already a member of the group
       db.query(
-        'INSERT INTO GroupMembers (user_id, group_id, role) VALUES (?, ?, "member")',
+        'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ?',
         [userId, groupId],
         (err, results) => {
           if (err) {
             return res.status(500).json({ error: err.message });
           }
+          
+          if (results.length > 0) {
+            return res.status(400).json({ error: 'You are already a member of this group' });
+          }
+          // Proceed to add the user to the group with a 'member' role
+          db.query(
+            'INSERT INTO GroupMembers (user_id, group_id, role) VALUES (?, ?, "member")',
+            [userId, groupId],
+            (err, results) => {
+              if (err) {
+                return res.status(500).json({ error: err.message });
+              }
 
-          return res.status(201).json({ message: 'Successfully joined the study group', group_id: groupId });
+              return res.status(201).json({ message: 'Successfully joined the study group', group_id: groupId });
+            }
+          );
         }
       );
     }
@@ -361,6 +373,68 @@ app.put('/transfer-admin/:group_id', verifyToken, (req, res) => {
   );
 });
 
+// Banning a group member by name
+app.delete('/ban-member/:group_id', verifyToken, (req, res) => {
+  const groupId = req.params.group_id;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+  const usernameToBan = req.body.username_to_ban;
+
+  // First check if the user is an admin of the group
+  db.query(
+    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ? AND role = "admin"',
+    [userId, groupId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (results.length === 0) {
+        return res.status(403).json({ error: 'You are not an admin of this group' });
+      }
+
+      // Proceed to find the user with the given username
+      db.query(
+        'SELECT user_id FROM Users WHERE username = ?',
+        [usernameToBan],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+
+          if (results.length === 0) {
+            return res.status(400).json({ error: 'User not found' });
+          }
+
+          const userToBanId = results[0].user_id;
+          
+          // Proceed to ban the user
+          db.query(
+            'DELETE FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+            [userToBanId, groupId],
+            (err, results) => {
+              if (err) {
+                return res.status(500).json({ error: err.message });
+              }
+              
+              // Add user to banned table
+              db.query(
+                'INSERT INTO BannedMembers (user_id, group_id) VALUES (?, ?)',
+                [userToBanId, groupId],
+                (err, results) => {
+                  if (err) {
+                    return res.status(500).json({ error: err.message });
+                  }
+              
+                  return res.status(200).json({ message: 'User successfully banned from the group' });
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+});
 
 
 app.listen(PORT, () => {
