@@ -27,9 +27,11 @@ const verifyToken = (req, res, next) => {
     const token = bearerHeader.split(' ')[1];
     jwt.verify(token, secret, (err, decoded) => {
       if (err) {
+        console.log("JWT verify error:", err); // debug line
         return res.status(403).json({ message: 'Invalid token' });
       }
-      req.userId = decoded.id; // Assign decoded id to req object
+      console.log("Decoded JWT:", decoded); // debug line
+      req.userId = decoded.user_id; // Assign decoded user_id to req object
       next();
     });
   } else {
