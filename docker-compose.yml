@@ -18,8 +18,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    ports:
-      - "3001:3001" # Backend port, if needed. Adjust as per your application configuration.
+    # UNCOMMENT FOR MANUAL API TESTING
+    #ports:
+      #- "3001:3001" # Backend port, if needed. Adjust as per your application configuration.
     depends_on:
       - db
     environment:
@@ -33,8 +34,6 @@ services:
 
   db:
     image: mysql  # Using official MySQL image
-    ports:
-      - "3306:3306"
     env_file:
       - .env
     volumes:
