@@ -31,6 +31,15 @@ CREATE TABLE IF NOT EXISTS GroupMembers (
     FOREIGN KEY (group_id) REFERENCES StudyGroups(group_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS BannedMembers (
+    user_id INT,
+    group_id INT,
+    banned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, group_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (group_id) REFERENCES StudyGroups(group_id) ON DELETE CASCADE
+);
+
 -- Messages Table
 CREATE TABLE IF NOT EXISTS Messages (
     message_id INT AUTO_INCREMENT PRIMARY KEY,

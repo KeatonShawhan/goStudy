@@ -195,6 +195,246 @@ app.delete('/delete-study-group/:group_id', verifyToken, (req, res) => {
   );
 });
 
+// Joining a study group endpoint
+app.post('/join-study-group/:group_id', verifyToken, (req, res) => {
+  const groupId = req.params.group_id;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+  // Check if the user is banned
+  db.query(
+    'SELECT * FROM BannedMembers WHERE user_id = ? AND group_id = ?',
+    [userId, groupId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      
+      if (results.length > 0) {
+        return res.status(403).json({ error: 'You are banned from this group' });
+      }
+      // First check if the user is already a member of the group
+      db.query(
+        'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+        [userId, groupId],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          
+          if (results.length > 0) {
+            return res.status(400).json({ error: 'You are already a member of this group' });
+          }
+          // Proceed to add the user to the group with a 'member' role
+          db.query(
+            'INSERT INTO GroupMembers (user_id, group_id, role) VALUES (?, ?, "member")',
+            [userId, groupId],
+            (err, results) => {
+              if (err) {
+                return res.status(500).json({ error: err.message });
+              }
+
+              return res.status(201).json({ message: 'Successfully joined the study group', group_id: groupId });
+            }
+          );
+        }
+      );
+    }
+  );
+});
+
+// Listing all usernames in a study group
+app.get('/list-group-members/:group_id', verifyToken, (req, res) => {
+  const groupId = req.params.group_id;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+
+  // First, let's check if the user is a member of the group
+  db.query(
+    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+    [userId, groupId],
+    (err, results) => {
+      if (err || results.length === 0) {
+        return res.status(403).json({ error: 'You are not a member of this group' });
+      }
+
+      // If the user is a member, proceed to list all members
+      db.query(
+        'SELECT Users.username FROM Users ' +
+        'JOIN GroupMembers ON Users.user_id = GroupMembers.user_id ' +
+        'WHERE GroupMembers.group_id = ?',
+        [groupId],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          const usernames = results.map(row => row.username);
+          return res.status(200).json({ usernames });
+        }
+      );
+    }
+  );
+});
+
+// Leaving a study group endpoint
+app.delete('/leave-study-group/:group_id', verifyToken, (req, res) => {
+  const groupId = req.params.group_id;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+
+  // First check if the user is actually a member of the group
+  db.query(
+    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+    [userId, groupId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      
+      if (results.length === 0) {
+        return res.status(400).json({ error: 'You are not a member of this group' });
+      }
+
+      // Check if the user is an admin
+      if (results[0].role === 'admin') {
+        return res.status(403).json({ error: 'Admins cannot leave the group without transferring ownership or deleting the group' });
+      }
+
+      // Proceed to remove the user from the group
+      db.query(
+        'DELETE FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+        [userId, groupId],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+
+          return res.status(200).json({ message: 'Successfully left the study group', group_id: groupId });
+        }
+      );
+    }
+  );
+});
+
+// Transferring admin role to another user
+app.put('/transfer-admin/:group_id', verifyToken, (req, res) => {
+  const groupId = req.params.group_id;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+  const newAdminId = req.body.new_admin_id;
+
+  // First, check if the user making the request is an admin of the group
+  db.query(
+    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ? AND role = "admin"',
+    [userId, groupId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (results.length === 0) {
+        return res.status(403).json({ error: 'You are not an admin of this group' });
+      }
+
+      // Check if the new admin is already a member of the group
+      db.query(
+        'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+        [newAdminId, groupId],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+
+          if (results.length === 0) {
+            return res.status(400).json({ error: 'The user you are trying to promote is not a member of this group' });
+          }
+
+          // Proceed to update the role of the new admin
+          db.query(
+            'UPDATE GroupMembers SET role = "admin" WHERE user_id = ? AND group_id = ?',
+            [newAdminId, groupId],
+            (err, results) => {
+              if (err) {
+                return res.status(500).json({ error: err.message });
+              }
+
+              // Update the role of the old admin to 'member'
+              db.query(
+                'UPDATE GroupMembers SET role = "member" WHERE user_id = ? AND group_id = ?',
+                [userId, groupId],
+                (err, results) => {
+                  if (err) {
+                    return res.status(500).json({ error: err.message });
+                  }
+
+                  return res.status(200).json({ message: 'Admin role transferred successfully', group_id: groupId });
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+});
+
+// Banning a group member by name
+app.delete('/ban-member/:group_id', verifyToken, (req, res) => {
+  const groupId = req.params.group_id;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+  const usernameToBan = req.body.username_to_ban;
+
+  // First check if the user is an admin of the group
+  db.query(
+    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ? AND role = "admin"',
+    [userId, groupId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (results.length === 0) {
+        return res.status(403).json({ error: 'You are not an admin of this group' });
+      }
+
+      // Proceed to find the user with the given username
+      db.query(
+        'SELECT user_id FROM Users WHERE username = ?',
+        [usernameToBan],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+
+          if (results.length === 0) {
+            return res.status(400).json({ error: 'User not found' });
+          }
+
+          const userToBanId = results[0].user_id;
+          
+          // Proceed to ban the user
+          db.query(
+            'DELETE FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+            [userToBanId, groupId],
+            (err, results) => {
+              if (err) {
+                return res.status(500).json({ error: err.message });
+              }
+              
+              // Add user to banned table
+              db.query(
+                'INSERT INTO BannedMembers (user_id, group_id) VALUES (?, ?)',
+                [userToBanId, groupId],
+                (err, results) => {
+                  if (err) {
+                    return res.status(500).json({ error: err.message });
+                  }
+              
+                  return res.status(200).json({ message: 'User successfully banned from the group' });
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+});
 
 
 app.listen(PORT, () => {
