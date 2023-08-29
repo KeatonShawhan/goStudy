@@ -1,11 +1,11 @@
 import { FormControl, FormLabel, Input, Button, Box, Text } from "@chakra-ui/react"
 
-interface User {
+/*interface User {
   email: string;
   username: string;
   major: string;
   password: string;
-}
+}*/
 
 
 const CreateUserCard = () => {

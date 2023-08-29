@@ -1,0 +1,15 @@
+FROM node:lts
+
+WORKDIR /back
+#COPY frontend/Frontend-React-App/package*.json ./frontend/Frontend-React-App/
+COPY backend/package*.json ./
+
+#RUN cd frontend/Frontend-React-App && npm install --omit=dev
+RUN npm install --omit=dev
+
+# NON PROD: RUN npm install
+
+COPY backend/ ./
+
+EXPOSE 3001 
+CMD [ "node", "routes.js" ]
