@@ -524,6 +524,6 @@ app.get('/get-chat/:groupId', verifyToken, (req, res) => {
   );
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
