@@ -11,7 +11,7 @@ socket.on('connect', () => {
   socket.emit('join', { groupId: 1, userId: 2 });  // Notice 'userId' instead of 'username'
   
   // To send a message:
-  socket.emit('sendMessage', 'Message!', 1, 2);  // Added userId as the last parameter
+  socket.emit('sendMessage', 'Message!', 2, 1);  // Added userId as the last parameter
 
   // To receive a message:
   socket.on('message', (message) => {
