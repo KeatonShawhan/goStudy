@@ -1,3 +1,4 @@
+import OpenAI from "openai";
 const express = require('express');
 const mysql = require('mysql2');
 const jwt = require('jsonwebtoken');
@@ -5,6 +6,9 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const http = require('http');
 require('dotenv').config({ path: '../.env' });
+
+const openai = new OpenAI(process.env.OPENAI_API_KEY);
+
 
 const secret = process.env.JWT_SECRET;
 
@@ -523,6 +527,23 @@ app.get('/api/get-chat/:groupId', verifyToken, (req, res) => {
       );
     }
   );
+});
+
+app.post('api/askGPT4', async (req, res) => {
+  const userMessage = req.body.message;
+  
+  const gpt4Response = await openai.chat.completions.create({
+    model: "gpt-4.0-turbo",
+    messages: [
+      {
+        role: "user",
+        content: userMessage
+      }
+    ],
+    // other options
+  });
+  
+  res.json({ gpt4Answer: gpt4Response.data.choices[0].message.content });
 });
 
 server.listen(PORT, '0.0.0.0', () => {
