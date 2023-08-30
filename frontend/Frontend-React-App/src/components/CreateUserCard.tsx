@@ -35,7 +35,10 @@ const CreateUserCard = () => {
   useEffect(() => {
     axios
     .post('http://webapp:3001/register', JSON_dummyUser)
-    .then((res) => setUsers(res.data))
+    .then((res) => {
+      setUsers(res.data),
+      console.log(res)
+    })
     .catch(err => setError(err)) 
   }, [])
 
@@ -63,8 +66,8 @@ const CreateUserCard = () => {
 
             <Button borderRadius='10px' width='100%' background='#6896d9'>Sign In</Button>
           </FormControl>  
-          <Text>{Array.isArray(users) ? users.map(user => <p id={user.user_id.toString()}>{user.message}</p>) : "user"}</Text>
-          <Text>{Array.isArray(error) ? error.map(error => <p id={error.error}>{error.error}</p>): "error"}</Text>
+          <Text>{Array.isArray(users) ? users.map(user => <Text id={user.user_id.toString()}>{user.message}</Text>) : "user"}</Text>
+          <Text>{Array.isArray(error) ? error.map(error => <Text id={error.error}>{error.error}</Text>): "error"}</Text>
       </Box>
     </Box>
 
