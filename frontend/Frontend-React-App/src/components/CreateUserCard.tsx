@@ -25,6 +25,7 @@ const dummyUser: User = {
 }
 
 
+
 const CreateUserCard = () => {
 
   const [error, setError] = useState<UserError[]>([]);
@@ -34,7 +35,11 @@ const CreateUserCard = () => {
 
   useEffect(() => {
     axios
-    .post('http://webapp:3001/register', JSON_dummyUser)
+    .post('http://webapp:3001/register', JSON_dummyUser, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
     .then((res) => {
       setUsers(res.data),
       console.log(res)
@@ -42,29 +47,38 @@ const CreateUserCard = () => {
     .catch(err => setError(err)) 
   }, [])
 
+  const [formData, setFormData] = useState<User>({
+    username: '',
+    password: '',
+    email: '',
+    major: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    console.log(formData);
+  }
 
   return (
     <Box width='100%' display='flex' justifyContent='center' alignItems='center' marginTop='1rem'>
       <Box  width='30rem' background='gray.700' borderRadius='5px' padding='2rem' marginBottom='1rem'>
         <Text color='#cfd9e8' fontWeight='bold' fontSize='2xl' textAlign='center' marginBottom='2rem'>CREATE USER</Text>
-          <FormControl marginBottom='.5rem' isRequired>
+          <FormControl marginBottom='.5rem' isRequired onSubmit={handleSubmit}>
             
-            <FormLabel color='#cfd9e8'>Email</FormLabel>
-            <Input type='email' marginBottom='.5rem' border='1px solid #6896d9' />
+            <FormLabel color='#cfd9e8' htmlFor="email">Email</FormLabel>
+            <Input type='email' id="email" value={formData.email} marginBottom='.5rem' border='1px solid #6896d9' onChange={e => setFormData({...formData, email: e.target.value})}/>
 
-            <FormLabel color='#cfd9e8'>Username</FormLabel>
-            <Input type='text' marginBottom='.5rem' border='1px solid #6896d9' />
+            <FormLabel color='#cfd9e8' htmlFor="username">Username</FormLabel>
+            <Input type='text' id="username" value={formData.username} marginBottom='.5rem' border='1px solid #6896d9' onChange={e => setFormData({...formData, username: e.target.value})}/>
 
-            <FormLabel color='#cfd9e8'>Major</FormLabel>
-            <Input type='text' marginBottom='.5rem' border='1px solid #6896d9' />
+            <FormLabel color='#cfd9e8' htmlFor="major">Major</FormLabel>
+            <Input type='text' id="major" marginBottom='.5rem' value={formData.major} border='1px solid #6896d9' onChange={e => setFormData({...formData, major: e.target.value})}/>
 
-            <FormLabel color='#cfd9e8'>Create Password</FormLabel>
-            <Input type='password' border='1px solid #6896d9' marginBottom='.5rem' />
+            <FormLabel color='#cfd9e8' htmlFor="createpassword">Create Password</FormLabel>
+            <Input type='password' id="createpassword" value={formData.password} border='1px solid #6896d9' marginBottom='.5rem' onChange={e => setFormData({...formData, password: e.target.value})}/>
 
-            <FormLabel color='#cfd9e8'>Confirm Password</FormLabel>
-            <Input type='password' border='1px solid #6896d9' marginBottom='2rem' />
-
-            <Button borderRadius='10px' width='100%' background='#6896d9'>Sign In</Button>
+            <Button borderRadius='10px' width='100%' background='#6896d9' type="submit">Sign In</Button>
           </FormControl>  
           <Text>{Array.isArray(users) ? users.map(user => <Text id={user.user_id.toString()}>{user.message}</Text>) : "user"}</Text>
           <Text>{Array.isArray(error) ? error.map(error => <Text id={error.error}>{error.error}</Text>): "error"}</Text>
