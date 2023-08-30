@@ -509,6 +509,7 @@ app.get('/get-chat/:groupId', verifyToken, (req, res) => {
           if (err) {
             return res.status(500).json({ error: err.message });
           }
+          console.log(results);
 
           // Transform the messages if necessary
           const messages = results.map(row => ({

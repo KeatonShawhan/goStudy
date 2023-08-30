@@ -11,7 +11,7 @@ socket.on('connect', () => {
   socket.emit('join', { groupId: 1, username: 'TestUser' });
   
   // To send a message:
-  socket.emit('sendMessage', 'Hello, group!', 1);
+  socket.emit('sendMessage', 'Message 2!', 1);
 
   // To receive a message:
   socket.on('message', (message) => {
