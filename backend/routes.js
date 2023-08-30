@@ -528,6 +528,6 @@ app.get('/get-chat/:groupId', verifyToken, (req, res) => {
   );
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
