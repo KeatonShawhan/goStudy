@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
   });
 
   // Listen for new chat messages
-  socket.on('sendMessage', (message, userId, groupId) => {
+  socket.on('sendMessage', ({message, userId, groupId}) => {
     // Save message to database
     console.log(message);
     console.log(userId);
