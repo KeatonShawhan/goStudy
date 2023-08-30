@@ -34,11 +34,10 @@ const CreateUserCard = () => {
 
   useEffect(() => {
     axios
-    .post('http://webapp:3001/register', JSON_dummyUser)
-    .then((res) => setUsers(res.data))
+    .post('http://localhost:3000/api/register', JSON_dummyUser)
+    .then((res) => {console.log(res.data),setUsers(res.data)})
     .catch(err => setError(err)) 
   }, [])
-
 
   return (
     <Box width='100%' display='flex' justifyContent='center' alignItems='center' marginTop='1rem'>

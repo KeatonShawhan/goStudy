@@ -94,7 +94,7 @@ const db = mysql.createPool({
   queueLimit: 0
 });
 
-app.post('/register', (req, res) => {
+app.post('/api/register', (req, res) => {
   const { username, password, email, major } = req.body;
 
   // Validate the data here as necessary
@@ -132,7 +132,7 @@ app.post('/register', (req, res) => {
 
 
 // Login endpoint
-app.post('/login', (req, res) => {
+app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -176,7 +176,7 @@ app.post('/login', (req, res) => {
 });
 
 // Creating a study group endpoint
-app.post('/create-study-group', verifyToken, (req, res) => {
+app.post('/api/create-study-group', verifyToken, (req, res) => {
   const { group_name, subject } = req.body;
   const created_by = req.userId;  // Obtained from verifyToken middleware
 
@@ -212,7 +212,7 @@ app.post('/create-study-group', verifyToken, (req, res) => {
 
 
 // Deleting a study group endpoint
-app.delete('/delete-study-group/:group_id', verifyToken, (req, res) => {
+app.delete('/api/delete-study-group/:group_id', verifyToken, (req, res) => {
   const groupId = req.params.group_id;
   const userId = req.userId;  // Obtained from verifyToken middleware
 
@@ -241,7 +241,7 @@ app.delete('/delete-study-group/:group_id', verifyToken, (req, res) => {
 });
 
 // Joining a study group endpoint
-app.post('/join-study-group/:group_id', verifyToken, (req, res) => {
+app.post('/api/join-study-group/:group_id', verifyToken, (req, res) => {
   const groupId = req.params.group_id;
   const userId = req.userId;  // Obtained from verifyToken middleware
   // Check if the user is banned
@@ -287,7 +287,7 @@ app.post('/join-study-group/:group_id', verifyToken, (req, res) => {
 });
 
 // Listing all usernames in a study group
-app.get('/list-group-members/:group_id', verifyToken, (req, res) => {
+app.get('/api/list-group-members/:group_id', verifyToken, (req, res) => {
   const groupId = req.params.group_id;
   const userId = req.userId;  // Obtained from verifyToken middleware
 
@@ -319,7 +319,7 @@ app.get('/list-group-members/:group_id', verifyToken, (req, res) => {
 });
 
 // Leaving a study group endpoint
-app.delete('/leave-study-group/:group_id', verifyToken, (req, res) => {
+app.delete('/api/leave-study-group/:group_id', verifyToken, (req, res) => {
   const groupId = req.params.group_id;
   const userId = req.userId;  // Obtained from verifyToken middleware
 
@@ -358,7 +358,7 @@ app.delete('/leave-study-group/:group_id', verifyToken, (req, res) => {
 });
 
 // Transferring admin role to another user
-app.put('/transfer-admin/:group_id', verifyToken, (req, res) => {
+app.put('/api/transfer-admin/:group_id', verifyToken, (req, res) => {
   const groupId = req.params.group_id;
   const userId = req.userId;  // Obtained from verifyToken middleware
   const newAdminId = req.body.new_admin_id;
@@ -419,7 +419,7 @@ app.put('/transfer-admin/:group_id', verifyToken, (req, res) => {
 });
 
 // Banning a group member by name
-app.delete('/ban-member/:group_id', verifyToken, (req, res) => {
+app.delete('/api/ban-member/:group_id', verifyToken, (req, res) => {
   const groupId = req.params.group_id;
   const userId = req.userId;  // Obtained from verifyToken middleware
   const usernameToBan = req.body.username_to_ban;
@@ -483,7 +483,7 @@ app.delete('/ban-member/:group_id', verifyToken, (req, res) => {
 
 
 // Fetch all messages from the group chat for a specific user
-app.get('/get-chat/:groupId', verifyToken, (req, res) => {
+app.get('/api/get-chat/:groupId', verifyToken, (req, res) => {
   const groupId = req.params.groupId;
   const userId = req.userId;  // Obtained from verifyToken middleware
 
