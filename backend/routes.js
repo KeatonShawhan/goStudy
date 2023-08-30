@@ -41,9 +41,6 @@ io.on('connection', (socket) => {
   // Listen for new chat messages
   socket.on('sendMessage', (message, userId, groupId) => {
     // Save message to database
-    console.log(message);
-    console.log(userId);
-    console.log(groupId);
     db.query(
       'INSERT INTO Messages (content, sent_by, group_id) VALUES (?, ?, ?)',
       [message, userId, groupId],
