@@ -7,10 +7,46 @@ services:
       dockerfile: Dockerfile.frontend
       args:
         NGINX_CONF: prod.conf
+    env_file:
+      - .env
     ports:
       - "80:80"
       - "443:443"
+    networks:
+      - mynetwork
     volumes:
       - ./prod.conf:/etc/nginx/conf.d/default.conf
       - /etc/letsencrypt:/etc/letsencrypt
       - /var/lib/letsencrypt:/var/lib/letsencrypt
+
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    depends_on:
+      - db
+    environment:
+      - NODE_ENV=development
+      - DATABASE_HOST=db
+      # Add other environment variables or use env_file if needed
+    env_file:
+      - .env
+    networks:
+      - mynetwork
+
+  db:
+    image: mysql  # Using official MySQL image
+    env_file:
+      - .env
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  dbdata:

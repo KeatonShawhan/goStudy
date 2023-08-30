@@ -19,8 +19,8 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     # UNCOMMENT FOR MANUAL API TESTING
-    #ports:
-      #- "3001:3001" # Backend port, if needed. Adjust as per your application configuration.
+    ports:
+      - "3001:3001" # Backend port for manual API calls
     depends_on:
       - db
     environment:
