@@ -3,6 +3,7 @@ const mysql = require('mysql2');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
+const http = require('http');
 require('dotenv').config({ path: '../.env' });
 
 const secret = process.env.JWT_SECRET;
@@ -18,6 +19,50 @@ const app = express();
 app.use(express.json()); // For parsing application/json
 
 app.use(bodyParser.json());
+
+const server = http.createServer(app);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+// socket.io live chat that sends new messages into db
+io.on('connection', (socket) => {
+  console.log('New user connected');
+
+  // Join chat room
+  socket.on('join', ({ groupId, userId }) => {
+    socket.join(groupId);
+    // You can emit a welcome message, save to database, etc.
+  });
+
+  // Listen for new chat messages
+  socket.on('sendMessage', (message, groupId, userId) => {
+    // Save message to database
+    db.query(
+      'INSERT INTO Messages (content, sent_by, group_id) VALUES (?, ?, ?)',
+      [message, userId, groupId],
+      (err, results) => {
+        if (err) {
+          console.log("Error saving message:", err);
+          return;
+        }
+
+        console.log("Message saved:", results);
+      }
+    );
+
+    // Emit message to all clients in the same room
+    io.to(groupId).emit('message', { user: 'admin', text: message });
+  });
+
+  // Disconnect
+  socket.on('disconnect', () => {
+    console.log('User had left');
+  });
+});
 
 // Middleware to verify token
 const verifyToken = (req, res, next) => {
@@ -436,6 +481,48 @@ app.delete('/ban-member/:group_id', verifyToken, (req, res) => {
   );
 });
 
+
+// Fetch all messages from the group chat for a specific user
+app.get('/get-chat/:groupId', verifyToken, (req, res) => {
+  const groupId = req.params.groupId;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+
+  // First, check if the user is a member of the group
+  db.query(
+    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ?',
+    [userId, groupId],
+    (err, results) => {
+      if (err || results.length === 0) {
+        return res.status(403).json({ error: 'You are not a member of this group' });
+      }
+
+      const joinedAt = results[0].joined_at;
+
+      // If the user is a member, proceed to fetch all chat messages
+      db.query(
+        'SELECT Messages.*, Users.username FROM Messages ' +
+        'JOIN Users ON Messages.sent_by = Users.user_id ' +
+        'WHERE Messages.group_id = ? AND Messages.timestamp >= ? ' +
+        'ORDER BY Messages.timestamp',
+        [groupId, joinedAt],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+
+          // Transform the messages if necessary
+          const messages = results.map(row => ({
+            message: row.content,
+            sentBy: row.username,
+            timestamp: row.timestamp
+          }));
+
+          return res.status(200).json({ messages });
+        }
+      );
+    }
+  );
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
