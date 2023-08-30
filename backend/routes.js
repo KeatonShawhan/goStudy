@@ -98,7 +98,7 @@ app.post('/api/register', (req, res) => {
   const { username, password, email, major } = req.body;
 
   // Validate the data here as necessary
-
+  console.log(req.body);
   db.query('SELECT * FROM Users WHERE username = ? OR email = ?', [username, email], (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
