@@ -8,10 +8,10 @@ socket.on('connect', () => {
   console.log('Connected to server.');
 
   // Add additional event handlers here. For example:
-  socket.emit('join', { groupId: 1, username: 'TestUser' });
+  socket.emit('join', { groupId: 1, userId: 1 });  // Notice 'userId' instead of 'username'
   
   // To send a message:
-  socket.emit('sendMessage', 'Message 2!', 2, 1);
+  socket.emit('sendMessage', 'Message!', 1, 2);  // Added userId as the last parameter
 
   // To receive a message:
   socket.on('message', (message) => {
