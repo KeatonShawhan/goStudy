@@ -552,7 +552,6 @@ app.post('/api/unban-member/:group_id', verifyToken, (req, res) => {
   );
 });
 
-
 // Fetch all messages from the group chat for a specific user
 app.get('/api/get-chat/:groupId', verifyToken, (req, res) => {
   const groupId = req.params.groupId;
