@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+const OpenAI = require('openai');
 const express = require('express');
 const mysql = require('mysql2');
 const jwt = require('jsonwebtoken');
@@ -485,6 +485,73 @@ app.delete('/api/ban-member/:group_id', verifyToken, (req, res) => {
   );
 });
 
+// Unbanning a group member by name
+app.post('/api/unban-member/:group_id', verifyToken, (req, res) => {
+  const groupId = req.params.group_id;
+  const userId = req.userId;  // Obtained from verifyToken middleware
+  const usernameToUnban = req.body.username_to_unban;
+
+  // First check if the user is an admin of the group
+  db.query(
+    'SELECT * FROM GroupMembers WHERE user_id = ? AND group_id = ? AND role = "admin"',
+    [userId, groupId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (results.length === 0) {
+        return res.status(403).json({ error: 'You are not an admin of this group' });
+      }
+
+      // Proceed to find the user with the given username
+      db.query(
+        'SELECT user_id FROM Users WHERE username = ?',
+        [usernameToUnban],
+        (err, results) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+
+          if (results.length === 0) {
+            return res.status(400).json({ error: 'User not found' });
+          }
+
+          const userToUnbanId = results[0].user_id;
+
+          // Check if the user is actually banned
+          db.query(
+            'SELECT * FROM BannedMembers WHERE user_id = ? AND group_id = ?',
+            [userToUnbanId, groupId],
+            (err, results) => {
+              if (err) {
+                return res.status(500).json({ error: err.message });
+              }
+
+              if (results.length === 0) {
+                return res.status(400).json({ error: 'User is not banned from this group' });
+              }
+
+              // Proceed to unban the user
+              db.query(
+                'DELETE FROM BannedMembers WHERE user_id = ? AND group_id = ?',
+                [userToUnbanId, groupId],
+                (err, results) => {
+                  if (err) {
+                    return res.status(500).json({ error: err.message });
+                  }
+
+                  return res.status(200).json({ message: 'User successfully unbanned from the group' });
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+});
+
 
 // Fetch all messages from the group chat for a specific user
 app.get('/api/get-chat/:groupId', verifyToken, (req, res) => {
@@ -529,21 +596,21 @@ app.get('/api/get-chat/:groupId', verifyToken, (req, res) => {
   );
 });
 
-app.post('api/askGPT4', async (req, res) => {
+app.post('/api/askGPT4', async (req, res) => {
   const userMessage = req.body.message;
   
   const gpt4Response = await openai.chat.completions.create({
-    model: "gpt-4.0-turbo",
+    model: "gpt-3.5-turbo",
     messages: [
       {
         role: "user",
         content: userMessage
       }
     ],
+    temperature: 0.99,
     // other options
   });
-  
-  res.json({ gpt4Answer: gpt4Response.data.choices[0].message.content });
+  res.json({ gpt4Answer: gpt4Response.choices[0].message.content });
 });
 
 server.listen(PORT, '0.0.0.0', () => {
