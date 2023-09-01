@@ -78,7 +78,6 @@ const verifyToken = (req, res, next) => {
       if (err) {
         return res.status(403).json({ message: 'Invalid token' });
       }
-      console.log("Decoded JWT:", decoded); // debug line
       req.userId = decoded.user_id; // Assign decoded user_id to req object
       next();
     });
