@@ -1,23 +1,18 @@
 import { FormControl, FormLabel, Input, Button, Box, Text } from "@chakra-ui/react"
 import axios from "axios"
+import { Link } from "react-router-dom";
 import { ChangeEvent, useState } from "react"
-
+import User from "../entities/User";
+import Error from "../entities/Error";
 const hostName = import.meta.env.VITE_HOST_NAME;
 
-interface User {
-  username: string,
-  password: string,
-  email: string,
-  major: string
-}
 interface UserSuccess {
   message: string;
   user_id: number;
 }
 
-interface UserError {
-  error: string;
-}
+
+
 
 // const dummyUser: User = {
 //   username: 'clay',
@@ -27,9 +22,15 @@ interface UserError {
 // }
 
 
+
 const CreateUserCard = () => {
-  const [error, setError] = useState<UserError[]>([]);
-  const [users, setUsers] = useState<UserSuccess[]>([]);
+  const [error, setError] = useState<Error>({
+    error: ''
+  });
+  const [users, setUsers] = useState<UserSuccess>({
+    message: '',
+    user_id: 0
+  });
   const [formData, setFormData] = useState<User>({
     username: '',
     password: '',
@@ -45,10 +46,10 @@ const CreateUserCard = () => {
       }
     })
     .then((res) => {
-      setUsers(res.data),
+      setUsers({message: res.data.message, user_id: res.data.user_id}),
       console.log(res)
     })
-    .catch(err => setError(err)) 
+    .catch(err => setError({error: err.error})) 
   }
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -58,18 +59,19 @@ const CreateUserCard = () => {
       [name]: value,
     }));
   };
+
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     apiRequest();
-    console.log(formData);
   }
 
   return (
     <Box width='100%' display='flex' justifyContent='center' alignItems='center' marginTop='1rem'>
       <Box  width='30rem' background='gray.700' borderRadius='5px' padding='2rem' marginBottom='1rem'>
         <Text color='#cfd9e8' fontWeight='bold' fontSize='2xl' textAlign='center' marginBottom='2rem'>CREATE USER</Text>
-          <FormControl marginBottom='.5rem' isRequired onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
+        <FormControl marginBottom='.5rem' isRequired>
             
             <FormLabel color='#cfd9e8' htmlFor="email">Email</FormLabel>
             <Input type='email' id="email" name="email" marginBottom='.5rem' border='1px solid #6896d9' onChange={handleInputChange}/>
@@ -81,12 +83,13 @@ const CreateUserCard = () => {
             <Input type='text' id="major" name="major" marginBottom='.5rem' border='1px solid #6896d9' onChange={handleInputChange}/>
 
             <FormLabel color='#cfd9e8' htmlFor="createpassword">Create Password</FormLabel>
-            <Input type='password' id="createpassword" name="password" border='1px solid #6896d9' marginBottom='.5rem' onChange={handleInputChange}/>
-
-            <Button borderRadius='10px' width='100%' background='#6896d9' type="submit">Sign In</Button>
-          </FormControl>  
-          <Text>{users.map(user => <p id={user.message}>{user.user_id}</p>)}</Text>
-          <Text>{error.map(err => <p id={err.error}>{err.error}</p>)}</Text>
+            <Input type='password' id="createpassword" name="password" border='1px solid #6896d9' marginBottom='2rem' onChange={handleInputChange}/>
+            <Link to='/'>
+            <Button borderRadius='10px' width='100%' background='#6896d9' type="submit" >Sign Up</Button>
+            </Link>
+          </FormControl>
+          <Text>{users.message ? users.message : error.error}</Text>
+        </form>
       </Box>
     </Box>
   )

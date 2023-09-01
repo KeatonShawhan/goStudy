@@ -1,12 +1,17 @@
-import { Box } from "@chakra-ui/react";
+import LoginPage from "./pages/LoginPage";
 import CreateUserPage from "./pages/CreateUserPage";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 
 function App() {
 
   return (
-    <Box width='100%' height='30rem'>
-      <CreateUserPage/>
-    </Box>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LoginPage/>} />
+          <Route path="/register" element={<CreateUserPage/>} />
+        </Routes>
+      </Router>
   )
 }
 

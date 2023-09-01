@@ -1,18 +1,69 @@
-import { Box, FormControl, FormLabel, Input, Text, Link, Button } from '@chakra-ui/react'
+import { Box, FormControl, FormLabel, Input, Text, Button} from '@chakra-ui/react'
+import axios from 'axios'
+import { Link } from 'react-router-dom';
+import { ChangeEvent, useState } from 'react'
+import Error from '../entities/Error';
+const hostName = import.meta.env.VITE_HOST_NAME;
+
+
+// 
 
 const LoginCard = () => {
+  const [loginError, setLoginError] = useState<Error>({
+    error: ''
+  })
+  const [loginData, setLoginData] = useState({
+    username: '',
+    password: ''
+  })
+  const loginRequest = () => {
+        axios // make API Request                   
+        .post(`${hostName}/api/login`, loginData, {
+            headers: {
+            'Content-Type': 'application/json'
+            }
+        })
+        .then((res) => {
+            // this will give you the token in a json object, so put it in local storage
+            localStorage.setItem('token', res.data.token)
+            console.log(res)
+        })
+        // do smth with error if it happens
+        .catch(err => setLoginError(err)) 
+    }
+
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setLoginData(() => ({
+        ...loginData,
+        [name]: value,
+      }));
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      loginRequest();
+    }
   return (
     <Box width='100%' overflow='hidden' background='gray.700' borderRadius='5px' padding='2rem'>
     <Text color='#cfd9e8' fontWeight='bold' fontSize='2xl'>WELCOME BACK!</Text>
-    <Text fontSize='2xs' marginBottom='1rem'>Don't have an account? <Link color='#6896d9'>Sign up</Link></Text>
+    <Text fontSize='2xs' marginBottom='1rem'>Don't have an account? <p style={{color: "#6896d9", display: 'inline-block'}}><Link to='/register' >Sign up</Link></p></Text>
+
+    <form onSubmit={handleSubmit}>
     <FormControl marginBottom='1rem'>
-    <FormLabel color='#cfd9e8'>Email</FormLabel>
-    <Input type='email' marginBottom='1rem' border='1px solid #6896d9' />
-    <FormLabel color='#cfd9e8'>Password</FormLabel>
-    <Input type='password' border='1px solid #6896d9' marginBottom='1rem' />
-    <Link marginBottom='1.5rem' fontSize='2xs' display='flex' justifyContent='right' color='#6896d9'>Forgot Password?</Link>
-    <Button borderRadius='10px' width='100%' background='#6896d9'>Sign In</Button>
+
+    <FormLabel color='#cfd9e8' htmlFor='username'>Username</FormLabel>
+    <Input type='text' name='username' id='username' marginBottom='1rem' border='1px solid #6896d9' onChange={handleInputChange}/>
+
+    <FormLabel color='#cfd9e8' htmlFor='password'>Password</FormLabel>
+    <Input type='password' id='password' name='password' border='1px solid #6896d9' marginBottom='1rem' onChange={handleInputChange}/>
+
+    {/* Forgot Password? */}
+
+    <Button borderRadius='10px' width='100%' background='#6896d9' type='submit'>Sign In</Button>
     </FormControl>
+    </form>
+    <Text>{loginError ? loginError.error : 'Success'}</Text>
     </Box>
   )
 }
