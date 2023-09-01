@@ -59,8 +59,9 @@ const LoginCard = () => {
     <Input type='password' id='password' name='password' border='1px solid #6896d9' marginBottom='1rem' onChange={handleInputChange}/>
 
     {/* Forgot Password? */}
-
+    <Link to='/main'>
     <Button borderRadius='10px' width='100%' background='#6896d9' type='submit'>Sign In</Button>
+    </Link>
     </FormControl>
     </form>
     <Text>{loginError ? loginError.error : 'Success'}</Text>
