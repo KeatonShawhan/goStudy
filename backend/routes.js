@@ -611,6 +611,32 @@ app.post('/api/askGPT4', async (req, res) => {
   res.json({ gpt4Answer: gpt4Response.choices[0].message.content });
 });
 
+// Listing all study groups the logged-in user is a member of
+app.get('/api/my-study-groups', verifyToken, (req, res) => {
+  const userId = req.userId;  // Obtained from verifyToken middleware
+
+  // Query to find all the groups the user is a member of
+  db.query(
+    'SELECT g.* FROM GroupMembers AS gm JOIN StudyGroups AS g ON gm.group_id = g.group_id WHERE gm.user_id = ?',
+    [userId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      // If the user is not a member of any groups
+      if (results.length === 0) {
+        return res.status(200).json({ message: 'You are not a member of any study groups', groups: [] });
+      }
+
+      // Return the list of groups
+      return res.status(200).json({ message: 'Successfully fetched study groups', groups: results });
+    }
+  );
+});
+
+
+
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
