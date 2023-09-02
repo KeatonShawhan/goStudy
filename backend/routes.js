@@ -634,6 +634,39 @@ app.get('/api/my-study-groups', verifyToken, (req, res) => {
   );
 });
 
+// Listing all study groups the logged-in user is NOT a member of and NOT banned from
+app.get('/api/available-study-groups', verifyToken, (req, res) => {
+  const userId = req.userId;  // Obtained from verifyToken middleware
+
+  // SQL Query to fetch all groups that the user is NOT a member of and NOT banned from
+  const sqlQuery = `
+    SELECT * FROM StudyGroups
+    WHERE group_id NOT IN (
+      SELECT group_id FROM GroupMembers WHERE user_id = ?
+    ) 
+    AND group_id NOT IN (
+      SELECT group_id FROM BannedMembers WHERE user_id = ?
+    );
+  `;
+
+  db.query(
+    sqlQuery,
+    [userId, userId],
+    (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      // If there are no groups available for the user to join
+      if (results.length === 0) {
+        return res.status(200).json({ message: 'No available study groups to join', groups: [] });
+      }
+
+      // Return the list of groups
+      return res.status(200).json({ message: 'Successfully fetched available study groups', groups: results });
+    }
+  );
+});
 
 
 server.listen(PORT, '0.0.0.0', () => {
