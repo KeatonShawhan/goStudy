@@ -2,11 +2,8 @@ import { Box, Button, FormControl, FormLabel, Input, Text } from "@chakra-ui/rea
 import axios from "axios";
 import { ChangeEvent, useState } from "react";
 const hostName = import.meta.env.VITE_HOST_NAME;
+import StudyGroup from "../entities/StudyGroup";
 
-interface StudyGroup {
-  group_name: string;
-  subject: string;
-}
 
 const NavBar = () => {
   const [studyGroup, setStudyGroup] = useState<StudyGroup>({ 

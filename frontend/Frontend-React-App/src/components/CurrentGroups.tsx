@@ -1,32 +1,53 @@
-import { Box, List, ListItem, Text } from "@chakra-ui/react"
+import { Box, Button, Grid, GridItem, List, ListItem, Text } from "@chakra-ui/react"
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import StudyGroup from "../entities/StudyGroup";
 const hostName = import.meta.env.VITE_HOST_NAME;
 
+// {
+//   "message": "Successfully fetched study groups",
+//   "groups": [
+//       {
+//           "group_id": 1,
+//           "group_name": "Study Group 1",
+//           "subject": "History",
+//           "created_by": 2,
+//           "created_at": "2023-08-30T01:01:21.000Z"
+//       }
+//   ]
+// }
 
 
 const CurrentGroups = () => {
-  const [studyGroups, setStudyGroups] = useState();
-  const [error, setError] = useState();
-  const createStudyGroupRequest = () => {
-      axios // make API Request                   
-      .get(`${hostName}/api/my-study-groups`, {
-          headers: {
-          'Content-Type': 'application/json',
-          // This thing below is the header for how you pass in the token to a protected endpoint
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-      })
-      .then((res) => {
-          setStudyGroups(res.data)
-      })
-      // do smth with error if it happens, look at the endpoint in routes.js for specific error code meanings or ask Luca
-      .catch(err => setError(err))
-  }
+  const [studyGroups, setStudyGroups] = useState<StudyGroup[]>();
+  const [error, setError] = useState<Error>();
+  const getStudyGroups = () => {
+    axios // make API Request                   
+  .get(`${hostName}/api/my-study-groups`, {
+      headers: {
+      'Content-Type': 'application/json',
+      // This thing below is the header for how you pass in the token to a protected endpoint
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+  })
+  .then((res) => {
+      setStudyGroups(res.data.groups)
+  })
+  // do smth with error if it happens, look at the endpoint in routes.js for specific error code meanings or ask Luca
+  .catch(err => setError(err))
+}
+  useEffect(() => {
+    getStudyGroups();
+}, [])
   return (
     <>
     <Box width='80%' height='100%' position='fixed' left='0' marginTop='5rem'>
-
+    <Box padding='1rem'>
+      <Grid templateColumns='repeat(3, 1fr)' gap='6'>
+      {studyGroups?.map(group => <GridItem width='100%' background='gray.900'><Text textAlign='center' fontSize='2xl'>{group.group_name}</Text><Text textAlign='center' color='#6896d9' marginTop='1rem'>{group.subject}</Text><Text textAlign='center'>{error?.message}</Text></GridItem>)}
+      </Grid>
+      <Button onClick={() => getStudyGroups()}>Refresh Groups</Button>
+      </Box>
     </Box>
     <Box width='20%' position='fixed' right='0' height='100%' marginTop='5rem' marginBottom='1.5rem'background={"gray.900"}>
       <Box>
