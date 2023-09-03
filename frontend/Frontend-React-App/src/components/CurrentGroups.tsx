@@ -81,9 +81,9 @@ const joinStudyGroupRequest = (groupJoin: StudyGroup) => {
     <Box width='80%' height='100%' position='fixed' left='0' marginTop='5rem'>
     <Box padding='1rem'>
       <Grid templateColumns='repeat(3, 1fr)' gap='6'>
-      {studyGroups?.map(group => <GridItem width='100%' background='gray.900'><Text textAlign='center' fontSize='2xl'>{group.group_name}</Text><Text textAlign='center' color='#6896d9' marginTop='1rem'>{group.subject}</Text><Text textAlign='center'>{error?.message}</Text> <Button onClick={() => joinStudyGroupRequest(group)}>Join Study Group</Button></GridItem>)}
+      {studyGroups?.map(group => <GridItem width='100%' background='gray.900' borderRadius='10px'><Text textAlign='center' fontSize='2xl'>{group.group_name}</Text><Text textAlign='center' color='#6896d9' marginTop='1rem'>{group.subject}</Text><Text textAlign='center'>{error?.message}</Text> <Button margin='1rem' onClick={() => joinStudyGroupRequest(group)}>Join Study Group</Button></GridItem>)}
       </Grid>
-      <Button onClick={() => getStudyGroups()}>Refresh Groups</Button>
+      <Button margin='2rem' onClick={() => getStudyGroups()}>Refresh Groups</Button>
       </Box>
     </Box>
     <Box width='20%' position='fixed' right='0' height='100%' marginTop='5rem' marginBottom='1.5rem'background={"gray.900"}>
