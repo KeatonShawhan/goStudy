@@ -19,9 +19,10 @@ const hostName = import.meta.env.VITE_HOST_NAME;
 
 
 const CurrentGroups = () => {
+  const [myStudyGroups, setMyStudyGroups] = useState<StudyGroup[]>();
   const [studyGroups, setStudyGroups] = useState<StudyGroup[]>();
   const [error, setError] = useState<Error>();
-  const getStudyGroups = () => {
+  const getMyStudyGroups = () => {
     axios // make API Request                   
   .get(`${hostName}/api/my-study-groups`, {
       headers: {
@@ -31,20 +32,56 @@ const CurrentGroups = () => {
       }
   })
   .then((res) => {
-      setStudyGroups(res.data.groups)
+      setMyStudyGroups(res.data.groups)
   })
   // do smth with error if it happens, look at the endpoint in routes.js for specific error code meanings or ask Luca
   .catch(err => setError(err))
 }
+const getStudyGroups = () => {
+  axios
+  .get(`${hostName}/api/available-study-groups`, {
+      headers: {
+      'Content-Type': 'application/json',
+      // This thing below is the header for how you pass in the token to a protected endpoint
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }})
+  .then((res) => setStudyGroups(res.data.groups))
+}
+
+const joinStudyGroupRequest = (groupJoin: StudyGroup) => {
+    axios // make API Request                   
+    .post(`${hostName}/api/join-study-group/${groupJoin.group_id}`, {
+        headers: {
+        'Content-Type': 'application/json',
+        // This thing below is the header for how you pass in the token to a protected endpoint
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+    .then(() => {
+        // successful request gives you this json obj { message: 'Study group deleted' }
+        // do what you need to with that info, like redirect to off of that study group page
+       getMyStudyGroups();
+       getStudyGroups();
+    })
+    // do smth with error if it happens, look at the endpoint in routes.js for specific error code meanings or ask Luca
+    .catch(err => {
+      setError(err);
+      console.log(groupJoin);
+    }
+      )
+}
+
   useEffect(() => {
+    getMyStudyGroups();
     getStudyGroups();
 }, [])
+
   return (
     <>
     <Box width='80%' height='100%' position='fixed' left='0' marginTop='5rem'>
     <Box padding='1rem'>
       <Grid templateColumns='repeat(3, 1fr)' gap='6'>
-      {studyGroups?.map(group => <GridItem width='100%' background='gray.900'><Text textAlign='center' fontSize='2xl'>{group.group_name}</Text><Text textAlign='center' color='#6896d9' marginTop='1rem'>{group.subject}</Text><Text textAlign='center'>{error?.message}</Text></GridItem>)}
+      {studyGroups?.map(group => <GridItem width='100%' background='gray.900'><Text textAlign='center' fontSize='2xl'>{group.group_name}</Text><Text textAlign='center' color='#6896d9' marginTop='1rem'>{group.subject}</Text><Text textAlign='center'>{error?.message}</Text> <Button onClick={() => joinStudyGroupRequest(group)}>Join Study Group</Button></GridItem>)}
       </Grid>
       <Button onClick={() => getStudyGroups()}>Refresh Groups</Button>
       </Box>
@@ -56,7 +93,8 @@ const CurrentGroups = () => {
         </Box>
         <Box display='flex' justifyContent='center' alignItems='center'>
           <List>
-            <ListItem color='#6896d9'>hello</ListItem>
+          {myStudyGroups?.map(group => <ListItem textAlign='center'>{group.group_name}</ListItem>)}
+          <Button onClick={() => getMyStudyGroups()}>Refresh My Groups</Button>
           </List>
         </Box>
       </Box>
