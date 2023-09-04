@@ -51,13 +51,14 @@ const getStudyGroups = () => {
 }
 
 const joinStudyGroupRequest = (groupJoin: StudyGroup) => {
-    axios // make API Request                   
-    .post(`${hostName}/api/join-study-group/${groupJoin.group_id}`, {
-        headers: {
+  axios.post(
+    `${hostName}/api/join-study-group/${groupJoin.group_id}`,
+    {},
+    {
+      headers: {
         'Content-Type': 'application/json',
-        // This thing below is the header for how you pass in the token to a protected endpoint
         'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      }
     })
     .then(() => {
         // successful request gives you this json obj { message: 'Study group deleted' }
