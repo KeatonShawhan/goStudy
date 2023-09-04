@@ -5,7 +5,7 @@ import '@fontsource/overpass'
 const config: ThemeConfig = {
   
   initialColorMode: 'dark',
-  useSystemColorMode: true
+  useSystemColorMode: false
 }
 
 const theme = extendTheme({
