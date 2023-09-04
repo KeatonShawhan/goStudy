@@ -76,6 +76,7 @@ const verifyToken = (req, res, next) => {
     const token = bearerHeader.split(' ')[1];
     jwt.verify(token, secret, (err, decoded) => {
       if (err) {
+        console.log(err)
         return res.status(403).json({ message: 'Invalid token' });
       }
       req.userId = decoded.user_id; // Assign decoded user_id to req object
