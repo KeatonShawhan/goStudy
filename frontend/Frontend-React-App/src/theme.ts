@@ -5,7 +5,7 @@ import '@fontsource/overpass'
 const theme = extendTheme({
   config: {
     initialColorMode: 'dark',
-    useSystemColorMode: "false"
+    useSystemColorMode: false
   },
     fonts: {
       heading: `'Overpass', sans-serif`,
