@@ -51,7 +51,6 @@ const getStudyGroups = () => {
 }
 
 const joinStudyGroupRequest = (groupJoin: StudyGroup) => {
-  console.log(localStorage.getItem('token'))
   axios.post(
     `${hostName}/api/join-study-group/${groupJoin.group_id}`,
     {},
