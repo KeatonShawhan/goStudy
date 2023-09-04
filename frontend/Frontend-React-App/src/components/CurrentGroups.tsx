@@ -2,6 +2,7 @@ import { Box, Button, Grid, GridItem, List, ListItem, Text } from "@chakra-ui/re
 import axios from "axios";
 import { useEffect, useState } from "react";
 import StudyGroup from "../entities/StudyGroup";
+import { useNavigate } from "react-router-dom";
 const hostName = import.meta.env.VITE_HOST_NAME;
 
 // {
@@ -22,6 +23,7 @@ const CurrentGroups = () => {
   const [myStudyGroups, setMyStudyGroups] = useState<StudyGroup[]>();
   const [studyGroups, setStudyGroups] = useState<StudyGroup[]>();
   const [error, setError] = useState<Error>();
+  const navigate = useNavigate();
   const getMyStudyGroups = () => {
     axios // make API Request                   
   .get(`${hostName}/api/my-study-groups`, {
@@ -66,7 +68,7 @@ const joinStudyGroupRequest = (groupJoin: StudyGroup) => {
     // do smth with error if it happens, look at the endpoint in routes.js for specific error code meanings or ask Luca
     .catch(err => {
       setError(err);
-      console.log(groupJoin);
+      console.log(groupJoin.group_id);
     }
       )
 }
@@ -81,7 +83,7 @@ const joinStudyGroupRequest = (groupJoin: StudyGroup) => {
     <Box width='80%' height='100%' position='fixed' left='0' marginTop='5rem'>
     <Box padding='1rem'>
       <Grid templateColumns='repeat(3, 1fr)' gap='6'>
-      {studyGroups?.map(group => <GridItem width='100%' background='gray.900' borderRadius='10px'><Text textAlign='center' fontSize='2xl'>{group.group_name}</Text><Text textAlign='center' color='#6896d9' marginTop='1rem'>{group.subject}</Text><Text textAlign='center'>{error?.message}</Text> <Button margin='1rem' onClick={() => joinStudyGroupRequest(group)}>Join Study Group</Button></GridItem>)}
+      {studyGroups?.map(group => <GridItem width='100%' background='gray.900' borderRadius='10px'><Text textAlign='center' fontSize='2xl'>{group.group_name}</Text><Text textAlign='center' color='#6896d9' marginTop='1rem'>{group.subject}</Text><Text textAlign='center'>{error?.message}</Text> <Button margin='1rem' onClick={() => joinStudyGroupRequest(group)}>Join Study Group</Button><Button onClick={() => navigate('/')}>View Study Group</Button></GridItem>)}
       </Grid>
       <Button margin='2rem' onClick={() => getStudyGroups()}>Refresh Groups</Button>
       </Box>

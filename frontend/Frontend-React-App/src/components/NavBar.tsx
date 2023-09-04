@@ -49,6 +49,7 @@ const NavBar = () => {
   const showForm = () => {
     setVisible(!isVisible)
   }
+  const user = localStorage.getItem('username')
 
   return (
     <>
@@ -59,7 +60,7 @@ const NavBar = () => {
       <Box display='flex' alignItems='center'>
       <Text as='button' onClick={showForm}>Create Group</Text>
       </Box>
-        <Box width='50px' borderRadius='100%' background='#fff'/>
+        <Text>{user}</Text>
         </Box>
         {isVisible ? <Box display='flex' justifyContent='center' alignItems='center'>
           <Box marginTop='10rem' width='20rem' height='20rem' background='gray.900' padding='1rem'>

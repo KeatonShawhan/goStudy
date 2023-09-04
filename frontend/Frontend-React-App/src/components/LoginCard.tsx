@@ -39,6 +39,7 @@ const LoginCard = () => {
         ...loginData,
         [name]: value,
       }));
+      localStorage.setItem("username", `${loginData.username}`);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
