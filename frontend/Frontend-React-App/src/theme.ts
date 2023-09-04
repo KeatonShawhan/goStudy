@@ -3,8 +3,9 @@ import '@fontsource/nunito'
 import '@fontsource/overpass'
 
 const config: ThemeConfig = {
+  
   initialColorMode: 'dark',
-  useSystemColorMode: false
+  useSystemColorMode: true
 }
 
 const theme = extendTheme({
