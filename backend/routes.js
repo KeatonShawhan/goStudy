@@ -656,6 +656,7 @@ app.get('/api/available-study-groups', verifyToken, (req, res) => {
     (err, results) => {
       if (err) {
         return res.status(500).json({ error: err.message });
+        console.log(err)
       }
 
       // If there are no groups available for the user to join
