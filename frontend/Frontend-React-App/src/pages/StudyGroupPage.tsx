@@ -3,6 +3,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 const hostName = import.meta.env.VITE_HOST_NAME;
+const socketHostName = import.meta.env.SOCKET_HOST_NAME;
 import { io } from 'socket.io-client'
 
 interface OldMessages {
@@ -21,7 +22,7 @@ interface OldMessages {
 }
 
 const StudyGroupPage = () => {
-  const socket = io(hostName)
+  const socket = io(socketHostName)
   const { param } = useParams();
   const user = localStorage.getItem('username')
   const [oldMessages, setOldMessages] = useState<OldMessages>();
@@ -49,8 +50,8 @@ const StudyGroupPage = () => {
 
 
   return (
-    <Box width='100%' height='100%'>
-    <Grid templateColumns='repeat(2, 50%)' margin='2rem' columnGap='1rem'>
+    <Box width='100vw' height='100vh'>
+    <Grid templateColumns='repeat(2, 50vw)' margin='2rem' columnGap='1rem'>
         <GridItem>
           <Box width='100%' height='100%' background='white' borderRadius='20px'>
             <List>{oldMessages?.messages.map(message => <ListItem><Text>{message.sentBy}</Text><Text>{message.message}</Text><Text>{message.timestamp}</Text></ListItem>)}</List>
