@@ -35,6 +35,11 @@ const getStudyGroups = () => {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
       }})
   .then((res) => setStudyGroups(res.data.groups))
+  .catch(err => {
+    setError(err);
+    console.log(err);
+  }
+  )
 }
 
 const joinStudyGroupRequest = (groupJoin: StudyGroup) => {
