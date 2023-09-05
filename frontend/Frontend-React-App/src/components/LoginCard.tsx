@@ -47,7 +47,7 @@ const LoginCard = () => {
       loginRequest();
     }
   return (
-    <Box width='100%' overflow='hidden' background='gray.700' borderRadius='5px' padding='2rem'>
+    <Box width='100%' height='100%' overflow='hidden' background='gray.700' borderRadius='5px' padding='2rem'>
     <Text color='#cfd9e8' fontWeight='bold' fontSize='2xl'>WELCOME BACK!</Text>
     <Text fontSize='2xs' marginBottom='1rem'>Don't have an account? <p style={{color: "#6896d9", display: 'inline-block'}}><Link to='/register' >Sign up</Link></p></Text>
 

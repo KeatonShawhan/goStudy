@@ -5,19 +5,6 @@ import StudyGroup from "../entities/StudyGroup";
 import { useNavigate } from "react-router-dom";
 const hostName = import.meta.env.VITE_HOST_NAME;
 
-// {
-//   "message": "Successfully fetched study groups",
-//   "groups": [
-//       {
-//           "group_id": 1,
-//           "group_name": "Study Group 1",
-//           "subject": "History",
-//           "created_by": 2,
-//           "created_at": "2023-08-30T01:01:21.000Z"
-//       }
-//   ]
-// }
-
 
 const CurrentGroups = () => {
   const [myStudyGroups, setMyStudyGroups] = useState<StudyGroup[]>();
