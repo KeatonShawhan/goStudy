@@ -2,7 +2,7 @@ import { Box, Button, Grid, GridItem, List, ListItem, Text } from "@chakra-ui/re
 import axios from "axios";
 import { useEffect, useState } from "react";
 import StudyGroup from "../entities/StudyGroup";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 const hostName = import.meta.env.VITE_HOST_NAME;
 
 
@@ -83,7 +83,7 @@ const joinStudyGroupRequest = (groupJoin: StudyGroup) => {
         </Box>
         <Box display='flex' justifyContent='center' alignItems='center'>
           <List>
-          {myStudyGroups?.map(group => <ListItem textAlign='center'>{group.group_name}</ListItem>)}
+          {myStudyGroups?.map(group => <ListItem textAlign='center'><Link to={`/studygroup/${group.group_id}`} >{group.group_name}</Link></ListItem>)}
           <Button onClick={() => getMyStudyGroups()}>Refresh My Groups</Button>
           <Text textAlign='center'>{error?.message}</Text>
           </List>

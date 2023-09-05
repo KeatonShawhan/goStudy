@@ -1,44 +1,59 @@
-import { Box, Grid, GridItem, List } from "@chakra-ui/react"
+import { Box, Grid, GridItem, List, ListItem, Text } from "@chakra-ui/react"
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+const hostName = import.meta.env.VITE_HOST_NAME;
+import { io } from 'socket.io-client'
 
-// interface Props {
-//   group_id: number;
-//   username: string;
-// }
-
-
+interface OldMessages {
+  messages: [
+    {
+      message: 'string';
+      sentBy: 'string';
+      timestamp: 'string'
+    },
+    {
+      message: 'string';
+      sentBy: 'string';
+      timestamp: 'string'
+    }
+  ]
+}
 
 const StudyGroupPage = () => {
+  const socket = io(hostName)
+  const { param } = useParams();
+  const user = localStorage.getItem('username')
+  const [oldMessages, setOldMessages] = useState<OldMessages>();
+  useEffect(() => {
+    socket.emit('join', { groupId: `${param}`, username: `${user}`})
+      axios.get(
+        `${hostName}/api/get-chat/${param}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        })
+        .then((res) => {
+            // successful request gives you this json obj { message: 'Study group deleted' }
+            // do what you need to with that info, like redirect to off of that study group page
+           setOldMessages(res.data.messages)
+        })
+        // do smth with error if it happens, look at the endpoint in routes.js for specific error code meanings or ask Luca
+        .catch(err => {
+          console.log(err);
+        }
+      )
+     }, [])
 
-  // const joinStudyGroupRequest = (groupJoin: StudyGroup) => {
-  //   axios.post(
-  //     `${hostName}/api/join-study-group/${groupJoin.group_id}`,
-  //     {},
-  //     {
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${localStorage.getItem('token')}`
-  //       }
-  //     })
-  //     .then(() => {
-  //         // successful request gives you this json obj { message: 'Study group deleted' }
-  //         // do what you need to with that info, like redirect to off of that study group page
-  //        getMyStudyGroups();
-  //        getStudyGroups();
-  //     })
-  //     // do smth with error if it happens, look at the endpoint in routes.js for specific error code meanings or ask Luca
-  //     .catch(err => {
-  //       setError(err);
-  //       console.log(groupJoin.group_id);
-  //     }
-  //       )
-  // }
 
   return (
     <Box width='100%' height='100%'>
-    <Grid templateColumns='repeat(2, 50%)'>
+    <Grid templateColumns='repeat(2, 50%)' margin='2rem' columnGap='1rem'>
         <GridItem>
-          <Box width='100%' height='100%'>
-            <List></List>
+          <Box width='100%' height='100%' background='white' borderRadius='20px'>
+            <List>{oldMessages?.messages.map(message => <ListItem><Text>{message.sentBy}</Text><Text>{message.message}</Text><Text>{message.timestamp}</Text></ListItem>)}</List>
           </Box>
         </GridItem>
         <GridItem display='flex' justifyContent='center' alignItems='center'></GridItem> 
